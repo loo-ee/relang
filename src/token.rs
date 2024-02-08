@@ -10,7 +10,7 @@ pub enum LiteralType {
 pub struct Token {
     token_type: TokenType,
     lexeme: String, 
-    literal: LiteralType,
+    literal: Option<LiteralType>,
     line: usize
 }
 
@@ -18,7 +18,7 @@ impl Token {
     pub fn new(
         token_type: TokenType,
         lexeme: String, 
-        literal: LiteralType,
+        literal: Option<LiteralType>,
         line: usize
     ) -> Token {
         Token {

@@ -2,15 +2,6 @@ use crate::error;
 use crate::token::{Token, LiteralType};
 use crate::token_type::TokenType;
 
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref START: Mutex<usize> = Mutex::new(0);
-    static ref CURRENT: Mutex<usize> = Mutex::new(0);
-    static ref LINE: Mutex<usize> = Mutex::new(1);
-}
-
-
 pub struct Scanner {
     source: String,
     tokens: Vec<Token>,
@@ -36,7 +27,7 @@ impl Scanner {
         self.tokens.push(Token::new(
                             TokenType::EOF, 
                             "".to_string(), 
-                            LiteralType::Str("".to_string()),
+                            None,
                             self.line));
                         
         &self.tokens
@@ -121,9 +112,9 @@ impl Scanner {
 
         match literal {
             Some(content) => {
-                self.tokens.push(Token::new(token_type, text.to_string(), content, self.line));
+                self.tokens.push(Token::new(token_type, text.to_string(), Some(content), self.line));
             }
-            None => self.tokens.push(Token::new(token_type, text.to_string(), LiteralType::Str("".to_string()), self.line))
+            None => self.tokens.push(Token::new(token_type, text.to_string(), None, self.line))
         }
     }
 
