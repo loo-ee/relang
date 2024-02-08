@@ -1,5 +1,5 @@
 use crate::error;
-use crate::token::Token;
+use crate::token::{Token, LiteralType};
 use crate::token_type::TokenType;
 
 use std::sync::Mutex;
@@ -36,17 +36,17 @@ impl Scanner {
         self.tokens.push(Token::new(
                             TokenType::EOF, 
                             "".to_string(), 
-                            "".to_string(),
+                            LiteralType::Str("".to_string()),
                             self.line));
                         
         &self.tokens
     }
 
-    pub fn is_at_end(&self) -> bool {
+    fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
     }
 
-    pub fn scan_token(&mut self) {
+    fn scan_token(&mut self) {
         let c = self.advance();
 
         match c {
@@ -92,31 +92,42 @@ impl Scanner {
 
                 self.add_token(token_type, None);
             },
+
+            // Whitespaces
             ' ' | '\r' | '\t' => {},
             '\n' => self.line += 1,
+
+            // String
+            '"' => self.string(),
+
+            // Default
             _ => {
-                error(self.line, "Unexpected character".to_string());
+                if self.is_digit(c) {
+                    self.number();
+                } else {
+                    error(self.line, "Unexpected character".to_string());
+                }
             }
         }
     }
 
-    pub fn advance(&mut self) -> char {
+    fn advance(&mut self) -> char {
         self.current += 1; 
         self.source.chars().nth(self.current -1).expect("Failed to read str")
     }
 
-    pub fn add_token(&mut self, token_type: TokenType, literal: Option<String>) {
+    fn add_token(&mut self, token_type: TokenType, literal: Option<LiteralType>) {
         let text = self.source.get(self.start..self.current).unwrap();
 
         match literal {
             Some(content) => {
                 self.tokens.push(Token::new(token_type, text.to_string(), content, self.line));
             }
-            None => self.tokens.push(Token::new(token_type, text.to_string(), "".to_string(), self.line))
+            None => self.tokens.push(Token::new(token_type, text.to_string(), LiteralType::Str("".to_string()), self.line))
         }
     }
 
-    pub fn match_lex(&mut self, expected: char) -> bool {
+    fn match_lex(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
         }
@@ -126,5 +137,49 @@ impl Scanner {
 
         self.current += 1;
         true
+    }
+
+    fn string(&mut self) {
+        while self.peek() != '"' && !self.is_at_end() {
+            if self.peek() == '\n' { self.line += 1 }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            error(self.line, "Unterminated String.".to_string());
+            return;
+        }
+
+        self.advance();
+
+        let value = self.source.get(self.start + 1..self.current -1).unwrap();
+        self.add_token(TokenType::String, Some(LiteralType::Str(value.into())));
+    }
+
+    fn is_digit(&self, c: char) -> bool {
+        c  >= '0' && c <= '9'
+    }
+
+    fn number(&mut self) {
+        while self.is_digit(self.peek()) { self.advance(); }
+
+        if self.peek() == '.' && self.is_digit(self.peek_next()) {
+            self.advance();
+        
+            while self.is_digit(self.peek()) { self.advance(); }
+        }
+
+        let substr = self.source.get(self.start..self.current).unwrap();
+        self.add_token(TokenType::Number, Some(LiteralType::Num(substr.parse::<f64>().unwrap())));
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() { return '\0' }
+        self.source.chars().nth(self.current).unwrap()
+    }
+
+    fn peek_next(&self) -> char {
+        if self.current + 1 >= self.source.len() { return '\0' }
+        self.source.chars().nth(self.current + 1).unwrap()
     }
 }
