@@ -27,17 +27,24 @@ fn main() {
 }
 
 fn run_file(path: &str) -> std::io::Result<()> {
-    let had_error = HAD_ERROR.lock().unwrap();
+    let had_error = {
+        let lock = HAD_ERROR.lock().unwrap();
+        *lock
+    };
+
     let contents = fs::read_to_string(&path)?;
     run(contents);
     
-    if *had_error {
+    if had_error {
+        println!("test");
         process::exit(65);
     }
     Ok(())
 }
 
 fn run_prompt() {
+    let mut had_error = HAD_ERROR.lock().unwrap();
+
     loop {
         std::io::stdout().flush().unwrap();
         print!("> "); 
@@ -46,6 +53,7 @@ fn run_prompt() {
         std::io::stdin().read_line(&mut line).expect("Error reading line"); 
         if line.is_empty() { break };
         run(line);
+        *had_error = false;
     }
 }
 

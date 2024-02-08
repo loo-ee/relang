@@ -92,7 +92,7 @@ impl Scanner {
 
                 self.add_token(token_type, None);
             },
-            ' ' => {},
+            ' ' | '\r' | '\t' => {},
             '\n' => self.line += 1,
             _ => {
                 error(self.line, "Unexpected character".to_string());
