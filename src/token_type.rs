@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     LeftParen, RightParen, LeftBrace, RightBrace,
     Comma, Dot, Minus, Plus, Semicolon, Slash, Star,
@@ -11,7 +11,7 @@ pub enum TokenType {
     Identifier, String, Number,
 
     And, Class, Else, Fun, For,  If, Nil, Or,
-    Print, Return, Super, This, True, Var, While,
+    Print, Return, Super, This, True, False, Var, While,
 
     EOF
 }

@@ -2,18 +2,45 @@ use crate::error;
 use crate::token::{Token, LiteralType};
 use crate::token_type::TokenType;
 
+use std::collections::HashMap;
+use std::hash::Hash;
+
 pub struct Scanner {
     source: String,
     tokens: Vec<Token>,
     start: usize,
     current: usize,
-    line: usize
+    line: usize,
+    keywords: HashMap<String, TokenType>
 }
 
 impl Scanner {
+
     pub fn new(source: String,) -> Scanner {
         Scanner {
-            source, tokens: Vec::new(), start: 0, current: 0, line: 1
+            source, 
+            tokens: Vec::new(), 
+            start: 0, 
+            current: 0, 
+            line: 1,
+            keywords: HashMap::from_iter([
+                ("and".to_string(), TokenType::And),
+                ("class".to_string(), TokenType::Class),
+                ("else".to_string(), TokenType::Else),
+                ("false".to_string(), TokenType::False),
+                ("for".to_string(), TokenType::For),
+                ("fun".to_string(), TokenType::Fun),
+                ("if".to_string(), TokenType::If),
+                ("nil".to_string(), TokenType::Nil),
+                ("or".to_string(), TokenType::Or),
+                ("print".to_string(), TokenType::Print),
+                ("return".to_string(), TokenType::Return),
+                ("super".to_string(), TokenType::Super),
+                ("this".to_string(), TokenType::This),
+                ("true".to_string(), TokenType::True),
+                ("var".to_string(), TokenType::Var),
+                ("while".to_string(), TokenType::While),
+            ])
         }
     }
     
@@ -95,6 +122,8 @@ impl Scanner {
             _ => {
                 if self.is_digit(c) {
                     self.number();
+                } else if self.is_alpha(c) {
+                    self.identifier();
                 } else {
                     error(self.line, "Unexpected character".to_string());
                 }
@@ -149,6 +178,28 @@ impl Scanner {
 
     fn is_digit(&self, c: char) -> bool {
         c  >= '0' && c <= '9'
+    }
+
+    fn is_alpha(&self, c: char) -> bool {
+        (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        c == '_'
+    }
+
+    fn is_alpha_numeric(&self, c: char) -> bool {
+        self.is_alpha(c) || self.is_digit(c)
+    }
+
+    fn identifier(&mut self) {
+        while self.is_alpha_numeric(self.peek()) { self.advance(); }
+
+        let text = self.source.get(self.start..self.current).unwrap();
+        let token_type = self.keywords.get(text);
+
+        match token_type {
+            Some(token_t) => self.add_token(token_t.clone(), None),
+            None => self.add_token(TokenType::Identifier, None)
+        }
     }
 
     fn number(&mut self) {
