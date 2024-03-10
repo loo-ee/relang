@@ -1,9 +1,9 @@
-use std::{env, fs, io::{Write}, process};
 use std::sync::Mutex;
+use std::{env, fs, io::Write, process};
 
-mod token_type;
-mod token;
 mod scanner;
+mod token;
+mod token_type;
 
 #[macro_use]
 extern crate lazy_static;
@@ -11,7 +11,6 @@ extern crate lazy_static;
 lazy_static! {
     static ref HAD_ERROR: Mutex<bool> = Mutex::new(false);
 }
-
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -34,7 +33,7 @@ fn run_file(path: &str) -> std::io::Result<()> {
 
     let contents = fs::read_to_string(&path)?;
     run(contents);
-    
+
     if had_error {
         println!("test");
         process::exit(65);
@@ -47,11 +46,15 @@ fn run_prompt() {
 
     loop {
         std::io::stdout().flush().unwrap();
-        print!("> "); 
+        print!("> ");
         std::io::stdout().flush().unwrap();
         let mut line = String::new();
-        std::io::stdin().read_line(&mut line).expect("Error reading line"); 
-        if line.is_empty() { break };
+        std::io::stdin()
+            .read_line(&mut line)
+            .expect("Error reading line");
+        if line.is_empty() {
+            break;
+        };
         run(line);
         *had_error = false;
     }
