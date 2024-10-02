@@ -1,3 +1,3 @@
 #!/bin/sh
 cargo build
-cargo run -- main.rel
+cargo run --bin relang main.rel

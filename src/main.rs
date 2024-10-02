@@ -4,6 +4,7 @@ use std::{env, fs, io::Write, process};
 mod scanner;
 mod token;
 mod token_type;
+mod asts;
 
 #[macro_use]
 extern crate lazy_static;
@@ -16,7 +17,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() > 2 {
-        println!("Usage: rlox [script]");
+        println!("Usage: rel [script]");
         process::exit(64);
     } else if args.len() == 2 {
         let _ = run_file(&args[1]);
