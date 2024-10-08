@@ -4,7 +4,6 @@ use std::{env, fs, io::Write, process};
 mod scanner;
 mod token;
 mod token_type;
-mod asts;
 
 #[macro_use]
 extern crate lazy_static;
