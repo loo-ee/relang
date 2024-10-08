@@ -12,14 +12,25 @@ pub fn main() {
 }
 
 fn run(output_dir: &str) {
+    // define_ast(
+    //     output_dir,
+    //     "Expr",
+    //     vec![
+    //         "Binary: Expr left, Token operator, Expr right".to_string(),
+    //         "Grouping : Expr expression".to_string(),
+    //         "Literal: Object value".to_string(),
+    //         "Unary: Token operator, Expr right".to_string(),
+    //     ],
+    // )
+    // .expect("Cannot create file");
     define_ast(
         output_dir,
         "Expr",
         vec![
-            "Binary: Expr left, Token operator, Expr right".to_string(),
-            "Grouping : Expr expression".to_string(),
-            "Literal: Object value".to_string(),
-            "Unary: Token operator, Expr right".to_string(),
+            "Binary: left Expr, operator Token, right Expr".to_string(),
+            "Grouping : expression Expr".to_string(),
+            "Literal: value Object".to_string(),
+            "Unary: operator Expr, right Expr".to_string(),
         ],
     )
     .expect("Cannot create file");
@@ -72,8 +83,6 @@ fn define_type(
         let mut first_part: &str = "";
         let mut second_part: &str = "";
 
-        println!("{:?}", &name);
-
         match &name.get(0) {
             Some(first) => first_part = first,
             None => println!("Cannot get first part in field name"),
@@ -92,11 +101,14 @@ fn define_type(
     write!(file_writer, "\tpub fn new(\n")?;
 
     for field in &fields {
-        let name: Vec<&str> = field.split(" ").collect();
+        let name: Vec<&str> = field.trim().split(" ").collect();
 
-        match name.get(1) {
-            Some(second) => write!(file_writer, "\t\t{}:{},\n", second, second)?,
-            None => println!("Cannot get second part in field name"),
+        match name.get(0) {
+            Some(first) => match name.get(1) {
+                Some(second) => write!(file_writer, "\t\t{}:{},\n", first, second)?,
+                None => println!("Cannot get second part in field name"),
+            },
+            None => println!("Cannot get first part in field name"),
         }
     }
 

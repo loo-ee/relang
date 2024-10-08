@@ -1,61 +1,61 @@
 
 struct Binary {
-	Expr:left,
-	Token:operator,
-	Expr:right,
+	left:Expr,
+	operator:Token,
+	right:Expr,
 }
 impl Binary {
 	pub fn new(
-		left:left,
-		Token:Token,
-		Expr:Expr,
+		left:Expr,
+		operator:Token,
+		right:Expr,
 	) -> Binary {
 		Binary {
-			left,
-			Token,
 			Expr,
+			operator,
+			right,
 		}
 	}
 }
 
 struct Grouping {
-	Expr:expression,
+	expression:Expr,
 }
 impl Grouping {
 	pub fn new(
-		expression:expression,
+		expression:Expr,
 	) -> Grouping {
 		Grouping {
-			expression,
+			Expr,
 		}
 	}
 }
 
 struct Literal {
-	Object:value,
+	value:Object,
 }
 impl Literal {
 	pub fn new(
-		value:value,
+		value:Object,
 	) -> Literal {
 		Literal {
-			value,
+			Object,
 		}
 	}
 }
 
 struct Unary {
-	Token:operator,
-	Expr:right,
+	operator:Expr,
+	right:Expr,
 }
 impl Unary {
 	pub fn new(
-		operator:operator,
-		Expr:Expr,
+		operator:Expr,
+		right:Expr,
 	) -> Unary {
 		Unary {
-			operator,
 			Expr,
+			right,
 		}
 	}
 }
